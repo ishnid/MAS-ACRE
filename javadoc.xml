@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="public" author="true" classpath="/home/daithi/lib/log4j-1.2.11.jar" destdir="doc" doctitle="MAS-ACRE" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="is.lill.acre.message,is.lill.acre.protocol,is.lill.acre.logic,is.lill.acre.event,is.lill.acre.group,is.lill.acre.protocol.util,is.lill.acre.conversation,is.lill.acre.exception,is.lill.acre.xml" source="1.6" sourcefiles="/home/daithi/Dropbox/code/MAS-ACRE/src/Main.java" sourcepath="/home/daithi/Dropbox/code/MAS-ACRE/src" splitindex="true" use="true" version="true">
+            <link href="file:/home/daithi/code/AFAPL-ACRE/doc/"/>
+        </javadoc>
+    </target>
+</project>

@@ -1,0 +1,49 @@
+<project name="MAS-ACRE">
+
+   <!-- define date string for daily builds -->
+   <tstamp>
+      <format property="TODAY" pattern="yyyyMMdd" />
+   </tstamp>
+
+   <!-- define properties -->
+   <property name="source-dest" value="build/source" />
+   <property name="class-dest" value="build/source" />
+   <property name="outfile" value="MAS-ACRE-${TODAY}" />
+   <property name="jar-dest" value="build/dist" />
+
+
+   <!-- delete the build directory -->
+   <target name="clean">
+      <delete dir="build" />
+   </target>
+
+   <!-- zip the source directory -->
+   <target name="source">
+      <mkdir dir="${source-dest}" />
+      <tar destfile="${source-dest}/${outfile}.tar.gz" basedir="src" compression="gzip" />
+   </target>
+
+   <!-- compile the sources -->
+   <target name="compile">
+      <mkdir dir="${class-dest}" />
+      <javac srcdir="src" destdir="${class-dest}" includeantruntime="false">
+         <classpath>
+            <fileset dir="lib">
+               <include name="**/*.jar" />
+            </fileset>
+         </classpath>
+      </javac>
+      <copy todir="${class-dest}">
+         <fileset dir="src">
+            <include name="**/*.xsd" />
+         </fileset>
+      </copy>
+   </target>
+
+   <!-- create JAR file to distribute -->
+   <target name="jar" depends="compile">
+      <mkdir dir="${jar-dest}" />
+      <jar destfile="${jar-dest}/${outfile}.jar" basedir="${class-dest}" />
+   </target>
+
+</project>

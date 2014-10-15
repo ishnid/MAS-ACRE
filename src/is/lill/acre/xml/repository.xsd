@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:acre="http://acre.lill.is/XMLSchema"
+  targetNamespace="http://acre.lill.is"
+  xmlns="http://acre.lill.is"
+  elementFormDefault="qualified">
+  
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Schema for ACRE Protocol Repository
+      Author: Dave Lillis [ dave /at/ lill /dot/ is ]
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="repository">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="base" type="xs:anyURI"/>
+        <xs:element name="namespaces" type="namespaces-type"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="namespaces-type">
+    <xs:sequence>
+      <xs:element name="namespace" type="namespace-type" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence> 
+  </xs:complexType>
+
+  <xs:complexType name="namespace-type">
+    <xs:sequence>
+      <xs:element name="protocol" type="protocol-type" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="namespace-name-type" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="protocol-type">
+    <xs:attribute name="name" type="name-type" use="required"/>
+    <xs:attribute name="version" type="version-type" use="required"/>
+  </xs:complexType>
+  
+  <!-- definition of ACRE namespace type -->
+  <xs:simpleType name="namespace-name-type">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*"/>
+    </xs:restriction>
+  </xs:simpleType>  
+  
+  <!-- definition of ACRE name type -->
+  <xs:simpleType name="name-type">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-z0-9]([a-z0-9-]*[a-z0-9])?"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <!-- definition of ACRE version type -->
+  <xs:simpleType name="version-type">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d+\.\d+"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

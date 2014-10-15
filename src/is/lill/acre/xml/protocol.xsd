@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:acre="http://acre.lill.is/XMLSchema"
+  targetNamespace="http://acre.lill.is"
+  xmlns="http://acre.lill.is"
+  elementFormDefault="qualified" >
+
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Schema for ACRE Protocol Definitions
+      Author: Dave Lillis [ dave /at/ lill /dot/ is ]
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- overall definition of 'protocol' tag -->
+  <xs:element name="protocol">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="namespace" type="namespace-type" />
+        <xs:element name="name" type="name-type" />
+        <xs:element name="version" type="version-type"/>
+        <xs:element name="description" type="xs:string" minOccurs="0"/>
+        <xs:element name="import" type="import-type" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="states" type="states-type" minOccurs="0"/>
+        <xs:element name="transitions" type="transitions-type" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- 'states' tag contains a sequence of 'state' tags -->
+  <xs:complexType name="states-type">
+    <xs:sequence>
+      <xs:element name="state" type="state-type" maxOccurs="unbounded" minOccurs="0"/>  
+    </xs:sequence> 
+  </xs:complexType>
+
+  <!-- 'state' tags must have a 'name' attribute, which is a string -->
+  <xs:complexType name="state-type">
+    <xs:attribute name="name" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <!-- 'transitions' tag contains a sequence of 'transition' tags -->
+  <xs:complexType name="transitions-type">
+    <xs:sequence>
+      <xs:element name="transition" type="transition-type" maxOccurs="unbounded" />
+    </xs:sequence> 
+  </xs:complexType>
+
+  <!-- 'import' must include the namespace, name and version of the imported protocol -->
+  <xs:complexType name="import-type">
+    <xs:sequence>
+      <xs:element name="namespace" type="namespace-type" />
+      <xs:element name="name" type="name-type" />
+      <xs:element name="version" type="version-type" />
+      </xs:sequence>
+  </xs:complexType>
+
+  <!-- 'transition' tag has 6 possible attributes, of which 3 are mandatory -->
+  <xs:complexType name="transition-type">
+    <xs:attribute name="performative" type="xs:string" use="required" />
+    <xs:attribute name="from-state" type="xs:string" use="required" />
+    <xs:attribute name="to-state" type="xs:string" use="required" />
+    <xs:attribute name="sender" type="variable-type" default="?" />
+    <xs:attribute name="receiver" type="variable-type" default="?" />
+    <xs:attribute name="content" type="xs:string" default="?"/>
+  </xs:complexType>
+
+  <!-- definition of ACRE namespace type -->
+  <xs:simpleType name="namespace-type">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-z\d]([a-z\d-]*[a-z\d])?(\.[a-z\d]([a-z\d-]*[a-z\d])?)*"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <!-- definition of ACRE name type -->
+  <xs:simpleType name="name-type">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-z\d]([a-z\d-]*[a-z\d])?"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <!-- definition of ACRE version type -->
+  <xs:simpleType name="version-type">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d+\.\d+"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <!-- definition of ACRE variable type -->
+  <xs:simpleType name="variable-type">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\?{1,2}\w*"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
