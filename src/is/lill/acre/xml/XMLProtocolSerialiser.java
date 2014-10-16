@@ -50,7 +50,6 @@ import org.xml.sax.SAXException;
  * Class to write/read ACRE Protocols to/from XML files
  * 
  * @author daithi
- * @version $Id$
  */
 public class XMLProtocolSerialiser {
 
