@@ -23,6 +23,10 @@ import java.util.logging.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/**
+ * Writes the repository.xml file
+ * @author daithi
+ */
 public class XMLRepositoryWriter {
 
    private static Logger logger = Logger.getLogger( XMLRepositoryWriter.class.getName() );

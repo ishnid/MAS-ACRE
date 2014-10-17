@@ -1,140 +1,52 @@
 package is.lill.acre.protocol;
 
-import is.lill.acre.xml.XMLProtocolSerialiser;
-import is.lill.acre.xml.XMLRepositoryWriter;
-
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.OutputStream;
-
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class LocalRepository extends AbstractRepository implements IEditableRepository {
+public class LocalRepository extends AbstractFileSystemRepository {
 
-    protected File basedir;
-    protected File protocolDir;
+   private static final Logger logger = Logger.getLogger( LocalRepository.class.getName() );
+   static {
+      logger.setLevel( Level.WARNING );
+   }
 
-    private static final Logger logger = Logger.getLogger( LocalRepository.class.getName() );
-    static {
-        logger.setLevel( Level.WARNING );
-    }
+   protected LocalRepository( FileSystem fs ) {
+      this.fs = fs;
+   }
 
-    protected LocalRepository( File basedir ) {
-        this.basedir = basedir;
-        if ( !basedir.exists() ) {
-            basedir.mkdir();
-        }
-        this.protocolDir = new File( basedir, "repository" );
-        if ( !protocolDir.exists() ) {
-            protocolDir.mkdir();
-        }
-    }
+   // currently assumes repository exists and is real!
+   public static AbstractFileSystemRepository openRepository( File basedir ) throws RepositoryException {
+      logger.info( "Opening repository at " + basedir );
+      System.out.println( basedir.toURI() );
+      return new LocalRepository( FileSystems.getFileSystem( URI.create( "/Users/daithi/test/repotest/trading/" ) ) );
 
-    public static LocalRepository openRepository( File basedir ) throws RepositoryException {
-        logger.info( "Opening repository at " + basedir );
-        if ( new File( basedir, "repository.xml" ).exists() ) {
-            return new LocalRepository( basedir );
-        }
-        else {
-            logger.severe( "No ACRE repository found in " + basedir.toString() );
-            throw new RepositoryException( "No ACRE repository found in " + basedir.toString() );
-        }
-    }
+      /*
+       * logger.severe( "No ACRE repository found in " + basedir.toString() );
+       * throw new RepositoryException( "No ACRE repository found in " +
+       * basedir.toString() );
+       */
 
-    public static LocalRepository newRepository( File basedir ) {
-        return new LocalRepository( basedir );
-    }
+   }
 
-    public String getBase() {
-        return this.basedir.toString();
-    }
+   // create a new empty repository
+   public static AbstractFileSystemRepository newRepository( File basedir ) throws RepositoryException {
+      FileSystem fs = FileSystems.getFileSystem( basedir.toURI() );
+      try {
+         Files.createDirectory( fs.getPath( "repository" ) );
+      }
+      catch ( IOException e ) {
+         throw new RepositoryException( "Failed to create new repository: " + e );
+      }
+      return new LocalRepository( fs );
+   }
 
-    @Override
-    public void refresh() throws RepositoryException {
-        logger.info( "Refreshing sources" );
-
-        this.sources.clear();
-
-        FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept( File dir, String name ) {
-                return name.endsWith( ".acr" );
-            }
-        };
-        
-        for ( File f : protocolDir.listFiles( filter ) ) {
-
-            logger.info( "Reading " + f.getName() );
-
-            String[] pieces = f.getName().split( "_" );
-            ProtocolDescriptor desc = new ProtocolDescriptor();
-            if ( pieces.length == 3 ) {
-                desc.setNamespace( pieces[ 0 ] );
-                desc.setName( pieces[ 1 ] );
-                desc.setVersion( new ProtocolVersion( pieces[ 2 ].replaceAll( "\\.acr$", "" ) ) );
-            }
-            else {
-                logger.severe( "Failed to identify protocol descriptor for " + f.getName() );
-                desc.setName( f.getName() );
-            }
-            this.sources.put( desc, new FileProtocolSource( f, desc ) );
-        }
-    }
-
-
-    @Override
-    public IProtocolSource getSourceFor( ProtocolDescriptor desc ) {
-        return this.sources.get( desc );
-    }
-
-    @Override
-    public void addProtocol( Protocol p ) throws RepositoryException {
-        super.addProtocol( p );
-        this.saveProtocol( p );
-    }
-
-    public void saveProtocol( Protocol p ) throws RepositoryException {
-
-        File repositoryPath = new File( basedir, "repository" );
-        if ( !repositoryPath.exists() ) {
-            repositoryPath.mkdir();
-        }
-        try {
-
-            OutputStream out = new FileOutputStream( new File( repositoryPath, p.getDescriptor().toString() + ".acr" ) );
-            XMLProtocolSerialiser.writeProtocol( p, out );
-            this.saveRepositoryXML();
-        }
-        catch ( Exception e ) {
-            throw new RepositoryException( e.getMessage() );
-        }
-    }
-
-    @Override
-    public void saveRepositoryXML() throws RepositoryException {
-        OutputStream out;
-        try {
-            out = new FileOutputStream( new File( this.basedir, "repository.xml" ) );
-            XMLRepositoryWriter.writeRepository( this, out );
-        }
-        catch ( IOException e ) {
-            throw new RepositoryException( e.getMessage() );
-        }
-    }
-
-    @Override
-    public void deleteProtocol( Protocol p ) throws RepositoryException {
-        super.deleteProtocol( p );
-        File protocolPath = new File( protocolDir, p.getDescriptor().toString() + ".acr" );
-        if ( protocolPath.exists() ) {
-            protocolPath.delete();
-            saveRepositoryXML();
-        }
-        else {
-            throw new RepositoryException( "Protocol " + p.getDescriptor().toString() + " does not exist in repository" );
-        }
-    }
+   public static void main( String[] args ) throws Exception {
+      IRepository r = openRepository( new File( "/Users/daithi/test/repotest/trading" ) );
+   }
 }

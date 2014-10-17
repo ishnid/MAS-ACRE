@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -156,5 +155,10 @@ public abstract class AbstractRepository implements IRepository, IProtocolManage
     @Override
     public boolean contains( ProtocolDescriptor desc ) {
         return this.sources.containsKey( desc );
+    }
+    
+    @Override
+    public IProtocolSource getSourceFor( ProtocolDescriptor desc ) {
+       return this.sources.get( desc );
     }
 }
