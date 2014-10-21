@@ -1,6 +1,6 @@
 package is.lill.acre.protocol.util;
 
-import is.lill.acre.protocol.LocalRepository;
+import is.lill.acre.protocol.FileSystemRepository;
 import is.lill.acre.protocol.Protocol;
 import is.lill.acre.protocol.ProtocolDescriptor;
 import is.lill.acre.xml.XMLProtocolSerialiser;
@@ -9,11 +9,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ProtocolStore extends LocalRepository {
+public class ProtocolStore extends FileSystemRepository {
 
     private static final Logger logger = Logger.getLogger( ProtocolStore.class.getName() );
     static {

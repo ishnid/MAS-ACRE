@@ -11,14 +11,25 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class AbstractFileSystemRepository extends AbstractRepository implements IEditableRepository {
+public class FileSystemRepository extends AbstractRepository implements IEditableRepository {
 
-   private static Logger logger = Logger.getLogger( AbstractFileSystemRepository.class.getName() );
+   private static Logger logger = Logger.getLogger( FileSystemRepository.class.getName() );
+   static {
+      logger.setLevel( Level.INFO );
+   }
 
    protected FileSystem fs;
+   protected String basepath;
+
+   public FileSystemRepository( FileSystem fs, String basepath ) {
+      this.fs = fs;
+      this.basepath = basepath;
+   }
 
    @Override
    public IProtocolSource getSourceFor( ProtocolDescriptor desc ) {
@@ -31,15 +42,18 @@ public class AbstractFileSystemRepository extends AbstractRepository implements 
 
       this.sources.clear();
 
-      Path repoPath = fs.getPath( "repository.xml" );
+      Path repoPath = fs.getPath( basepath, "repository.xml" );
 
       try {
          InputStream in = Files.newInputStream( repoPath, StandardOpenOption.READ );
          Set<ProtocolDescriptor> protocols = XMLRepositoryReader.readRepository( in );
 
          for ( ProtocolDescriptor desc : protocols ) {
-            this.sources.put( desc, new FileSystemProtocolSource( fs, desc ) );
-
+            this.sources.put( desc, new PathProtocolSource( repoPath, desc ) );
+            if ( !this.namespaces.containsKey( desc.getNamespace() ) ) {
+               this.namespaces.put( desc.getNamespace(), new HashSet<ProtocolDescriptor>() );
+            }
+            this.namespaces.get( desc.getNamespace() ).add( desc );
          }
          in.close();
       }
@@ -58,7 +72,7 @@ public class AbstractFileSystemRepository extends AbstractRepository implements 
    public void saveRepositoryXML() throws RepositoryException {
       OutputStream out;
       try {
-         Path path = this.fs.getPath( ".", "repository.xml" );
+         Path path = this.fs.getPath( basepath, "repository.xml" );
          out = Files.newOutputStream( path );
          XMLRepositoryWriter.writeRepository( this, out );
          out.close();
@@ -75,7 +89,7 @@ public class AbstractFileSystemRepository extends AbstractRepository implements 
 
    public void saveProtocol( Protocol p ) throws RepositoryException {
       try {
-         Path path = this.fs.getPath( "repository", p.getDescriptor().toString() + ".acr" );
+         Path path = this.fs.getPath( basepath, "repository", p.getDescriptor().toString() + ".acr" );
          OutputStream out = Files.newOutputStream( path );
          XMLProtocolSerialiser.writeProtocol( p, out );
          out.close();
@@ -90,7 +104,7 @@ public class AbstractFileSystemRepository extends AbstractRepository implements 
    public void deleteProtocol( Protocol p ) throws RepositoryException {
       super.deleteProtocol( p );
 
-      Path protocolPath = this.fs.getPath( "repository", p.getDescriptor().toString() + ".acr" );
+      Path protocolPath = this.fs.getPath( basepath, "repository", p.getDescriptor().toString() + ".acr" );
 
       try {
          if ( Files.deleteIfExists( protocolPath ) ) {
@@ -104,7 +118,7 @@ public class AbstractFileSystemRepository extends AbstractRepository implements 
          throw new RepositoryException( "Failed to delete protocol: " + p.getDescriptor().toString() + ": " + e );
       }
    }
-   
+
    @Override
    public void addProtocol( Protocol p ) throws RepositoryException {
       super.addProtocol( p );

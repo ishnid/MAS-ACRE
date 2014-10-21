@@ -2,29 +2,27 @@ package is.lill.acre.protocol;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class FileSystemProtocolSource implements IProtocolSource {
+public class PathProtocolSource implements IProtocolSource {
 
-   private FileSystem fs;
+   private Path path;
    private ProtocolDescriptor desc;
 
-   public FileSystemProtocolSource( FileSystem fs, ProtocolDescriptor desc ) {
-      this.fs = fs;
+   public PathProtocolSource( Path path, ProtocolDescriptor desc ) {
+      this.path = path;
       this.desc = desc;
    }
 
    @Override
    public InputStream getInputStream() throws IOException {
-      Path p = fs.getPath( "repository", desc.toString() + ".acr" );
-      return Files.newInputStream( p );
+      return Files.newInputStream( path );
    }
 
    @Override
    public String getDescription() {
-      return this.fs.toString();
+      return this.path.toString();
    }
 
    @Override
