@@ -30,6 +30,13 @@ public class FileSystemRepository extends AbstractRepository implements IEditabl
       this.fs = fs;
       this.basepath = basepath;
    }
+   
+   public FileSystemRepository( FileSystem fs, String basepath, boolean create ) {
+      this( fs, basepath );
+      if ( create ) {
+         
+      }
+   }
 
    @Override
    public IProtocolSource getSourceFor( ProtocolDescriptor desc ) {
@@ -43,13 +50,13 @@ public class FileSystemRepository extends AbstractRepository implements IEditabl
       this.sources.clear();
 
       Path repoPath = fs.getPath( basepath, "repository.xml" );
-
       try {
          InputStream in = Files.newInputStream( repoPath, StandardOpenOption.READ );
          Set<ProtocolDescriptor> protocols = XMLRepositoryReader.readRepository( in );
 
          for ( ProtocolDescriptor desc : protocols ) {
-            this.sources.put( desc, new PathProtocolSource( repoPath, desc ) );
+
+            this.sources.put( desc, new PathProtocolSource( repoPath.getParent(), desc ) );
             if ( !this.namespaces.containsKey( desc.getNamespace() ) ) {
                this.namespaces.put( desc.getNamespace(), new HashSet<ProtocolDescriptor>() );
             }
@@ -64,8 +71,7 @@ public class FileSystemRepository extends AbstractRepository implements IEditabl
 
    @Override
    public String getBase() {
-      // TODO Auto-generated method stub
-      return null;
+      return this.basepath;
    }
 
    @Override

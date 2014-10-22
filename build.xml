@@ -1,90 +1,83 @@
 <project name="MAS-ACRE">
 
-   <!-- include swtjar -->
-   <taskdef name="swtjar" classname="org.swtjar.ant.SWTJarTask" classpath="./lib/swtjar.jar" />
+	<!-- include appbundler for packaging an OSX app-->
+	<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="./lib/appbundler-1.0.jar" />
 
-   <!-- include jarbundler for packaging an OSX app -->
-   <taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler" classpath="./lib/jarbundler-2.3.1.jar" />
+	<!-- include swtjar -->
+	<taskdef name="swtjar" classname="org.swtjar.ant.SWTJarTask" classpath="./lib/swtjar.jar" />
 
-   <!-- define date string for daily builds -->
-   <tstamp>
-      <format property="TODAY" pattern="yyyyMMdd" />
-   </tstamp>
+	<!-- define date string for daily builds -->
+	<tstamp>
+		<format property="TODAY" pattern="yyyyMMdd" />
+	</tstamp>
 
-   <!-- define properties -->
-   <property name="source-dest" value="build/source" />
-   <property name="class-dest" value="build/classes" />
-   <property name="outfile" value="MAS-ACRE-${TODAY}" />
-   <property name="jar-dest" value="build/jar" />
-   <property name="app-dest" value="build/app" />
-   <property name="swt-version" value="4.4" />
-   <property name="app-name" value="ACRE Editor" />
+	<!-- define properties -->
+	<property name="source-dest" value="build/source" />
+	<property name="class-dest" value="build/classes" />
+	<property name="outfile" value="MAS-ACRE-${TODAY}" />
+	<property name="jar-dest" value="build/jar" />
+	<property name="app-dest" value="build/app" />
+	<property name="swt-version" value="4.4" />
+	<property name="app-name" value="ACRE Editor" />
 
 
-   <!-- delete the build directory -->
-   <target name="clean">
-      <delete dir="build" />
-   </target>
+	<!-- delete the build directory -->
+	<target name="clean">
+		<delete dir="build" />
+	</target>
 
-   <!-- zip the source directory -->
-   <target name="source">
-      <mkdir dir="${source-dest}" />
-      <tar destfile="${source-dest}/${outfile}.tar.gz" basedir="src" compression="gzip" />
-   </target>
+	<!-- zip the source directory -->
+	<target name="source">
+		<mkdir dir="${source-dest}" />
+		<tar destfile="${source-dest}/${outfile}.tar.gz" basedir="src" compression="gzip" />
+	</target>
 
-   <!-- compile the sources -->
-   <target name="compile">
-      <mkdir dir="${class-dest}" />
-      <javac srcdir="src" destdir="${class-dest}" includeantruntime="false" debug="on" target="1.6" source="1.6">
-         <classpath>
-            <fileset dir="lib">
-               <include name="**/*.jar" />
-            </fileset>
-         </classpath>
-      </javac>
-      <copy todir="${class-dest}">
-         <fileset dir="src">
-            <include name="**/*.xsd" />
-            <include name="**/*.png" />
-         </fileset>
-      </copy>
-   </target>
+	<!-- compile the sources -->
+	<target name="compile">
+		<mkdir dir="${class-dest}" />
+		<javac srcdir="src" destdir="${class-dest}" includeantruntime="false" debug="on" target="1.7" source="1.7">
+			<classpath>
+				<fileset dir="lib">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+		<copy todir="${class-dest}">
+			<fileset dir="src">
+				<include name="**/*.xsd" />
+				<include name="**/*.png" />
+			</fileset>
+		</copy>
+	</target>
 
-   <!-- create JAR file to distribute -->
-   <target name="jar" depends="compile">
-      <mkdir dir="${jar-dest}" />
-      <!-- jar destfile="${jar-dest}/${outfile}.jar" basedir="${class-dest}" / -->
-      <swtjar jarfile="${jar-dest}/${outfile}.jar"
-         targetmainclass="is.lill.acre.gui.swt.RepositoryManager"
-         swtversion="${swt-version}">
+	<!-- create JAR file to distribute -->
+	<target name="jar" depends="compile">
+		<mkdir dir="${jar-dest}" />
+		<!-- jar destfile="${jar-dest}/${outfile}.jar" basedir="${class-dest}" / -->
+		<swtjar jarfile="${jar-dest}/${outfile}.jar" targetmainclass="is.lill.acre.gui.swt.RepositoryManager" swtversion="${swt-version}">
 
-         <fileset dir="${class-dest}" includes="**/*.png" />
-         <fileset dir="${class-dest}" includes="**/*.class" />
-         <fileset dir="${class-dest}" includes="**/*.xsd" />
-         <!-- zipfileset excludes="META-INF/*.MF" src="lib/whatever.jar" / -->
-         <fileset dir="./lib" includes="swt-*-${swt-version}.jar" />
-      </swtjar>
-   </target>
+			<fileset dir="${class-dest}" includes="**/*.png" />
+			<fileset dir="${class-dest}" includes="**/*.class" />
+			<fileset dir="${class-dest}" includes="**/*.xsd" />
+			<!-- zipfileset excludes="META-INF/*.MF" src="lib/whatever.jar" / -->
+			<fileset dir="./lib" includes="swt-*-${swt-version}.jar" />
+		</swtjar>
+	</target>
 
-   <!-- create an OSX app (packaged in a .zip file) -->
-   <target name="osx" depends="jar">
-      <mkdir dir="${app-dest}" />
-   	
-   	  <!-- First make the .app folder -->
-      <jarbundler dir="${app-dest}"
-         name="${app-name}"
-         mainclass="org.swtjar.SWTLoader"
-         jar="${jar-dest}/${outfile}.jar"
-         startOnMainThread="true"
-         icon="./src/acre-icon.icns"
-          />
-   	
-   	<!-- Now create a ZIP archive for distribution -->
-   	<zip destfile="${app-dest}/${outfile}.zip">
-   	   <zipfileset dir="${app-dest}/${app-name}.app" 
-   	       prefix="${app-name}.app" filemode="755" />
-   		</zip>
-   	
-   </target>
+	<!-- create an OSX app (packaged in a .zip file) -->
+	<target name="osx" depends="jar">
+		<mkdir dir="${app-dest}" />
+
+		<!-- First make the .app folder -->
+		<bundleapp outputdirectory="${app-dest}" name="ACRE Editor" displayname="ACRE Editor" identifier="is.lill.acre.editor" mainclassname="org.swtjar.SWTLoader" icon="./src/acre-icon.icns">
+			<classpath file="${jar-dest}/${outfile}.jar" />
+			<option value="-XstartOnFirstThread" />
+		</bundleapp>
+
+		<!-- Now create a ZIP archive for distribution -->
+		<zip destfile="${app-dest}/${outfile}.zip">
+			<zipfileset dir="${app-dest}/${app-name}.app" prefix="${app-name}.app" filemode="755" />
+		</zip>
+	</target>
 
 </project>

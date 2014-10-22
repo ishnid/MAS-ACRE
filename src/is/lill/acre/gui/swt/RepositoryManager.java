@@ -4,10 +4,10 @@ import is.lill.acre.exception.ProtocolParseException;
 import is.lill.acre.protocol.HTTPRepository;
 import is.lill.acre.protocol.IEditableRepository;
 import is.lill.acre.protocol.IProtocolManager;
-import is.lill.acre.protocol.LocalRepository;
 import is.lill.acre.protocol.Protocol;
 import is.lill.acre.protocol.RepositoryException;
 import is.lill.acre.protocol.RepositoryExporter;
+import is.lill.acre.protocol.RepositoryFactory;
 import is.lill.acre.xml.XMLProtocolSerialiser;
 
 import java.io.BufferedReader;
@@ -63,9 +63,6 @@ public class RepositoryManager {
       if ( System.getProperty( "os.name" ).equals( "Mac OS X" ) )
          isMac = true;
    }
-   
-   private enum RepoType { LOCAL, REMOTE };
-   private Map<String,RepoType> recentMap = new HashMap<String,RepoType>();
 
    private static String APP_NAME = "ACRE Editor";
 
@@ -123,6 +120,7 @@ public class RepositoryManager {
    Protocol preEdit;
    Protocol editing;
 
+   // TODO: document this
    private boolean failed;
 
    private java.util.List<String> recent = new ArrayList<String>();
@@ -612,8 +610,8 @@ public class RepositoryManager {
    private void openRepository( File root ) {
       logger.info( "Opening repository: " + root );
 
-      try {
-         this.rep = LocalRepository.openRepository( root );
+      try {// TODO: this is somewhat of a hack!
+         this.rep = (IProtocolManager) RepositoryFactory.openRepository( root.toString() );
          this.addRecent( root.toString() );
          this.failed = false;
          this.refresh();
@@ -848,10 +846,15 @@ public class RepositoryManager {
                   rm.errorBox( "Directory not empty", "A new ACRE repository should only be created in an empty directory." );
                }
                else {
-                  rm.rep = LocalRepository.newRepository( basedir );
+                  try {
+                  rm.rep = (IProtocolManager) RepositoryFactory.openRepository( basedir.toString() );
                   rm.failed = false;
                   rm.lastdir = basedir.toString();
                   rm.refresh();
+                  }
+                  catch ( RepositoryException e ) {
+                     failedRepository( e.getMessage() );
+                  }
                }
             }
          }

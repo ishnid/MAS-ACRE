@@ -11,7 +11,8 @@ public class PathProtocolSource implements IProtocolSource {
    private ProtocolDescriptor desc;
 
    public PathProtocolSource( Path path, ProtocolDescriptor desc ) {
-      this.path = path;
+      Path p2 = path.getFileSystem().getPath( "repository", desc.getUniqueID() + ".acr" );
+      this.path = path.resolve( p2 );
       this.desc = desc;
    }
 
