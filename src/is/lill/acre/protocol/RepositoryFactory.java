@@ -2,11 +2,14 @@ package is.lill.acre.protocol;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,24 +21,20 @@ public class RepositoryFactory {
       logger.setLevel( Level.INFO );
    }
 
-   public IRepository createRepository( String description ) throws RepositoryException {
+   public static IRepository createRepository( String description ) throws RepositoryException {
       try {
+         FileSystem fs = null;
+         String base = null;
          if ( description.endsWith( ".zip" ) ) {
-            return new FileSystemRepository( FileSystems.newFileSystem( URI.create( "jar:file://" + description ), new HashMap<String, String>() ), "/" );
+            fs = FileSystems.newFileSystem( URI.create( "jar:file://" + description ), new HashMap<String, String>() );
+            base = "/";
          }
          else {
-            File f = new File( description );
-            if ( f.exists() && f.isDirectory() ) {
-               if ( f.list().length > 0 ) {
-                  throw new RepositoryException( "Failed to create repository: Directory not empty" );
-               }
-            }
-            else if ( !f.exists() ) {
-               f.mkdirs();
-               
-            }
-            return new FileSystemRepository( FileSystems.getDefault(), description, true );
+            fs = FileSystems.getDefault();
+            base = description;
          }
+         initRepository( fs, base );
+         return new FileSystemRepository( fs, base );
       }
       catch ( IOException e ) {
          throw new RepositoryException( "Failed to create repository: " + e );
@@ -90,4 +89,20 @@ public class RepositoryFactory {
          }
       }
    }
+
+   private static void initRepository( FileSystem fs, String base ) throws RepositoryException {
+      // create 'repository' directory
+      Path repoPath = fs.getPath( base, "repository" );
+      Path xmlPath = fs.getPath( base, "repository.xml" );
+      try {
+         Files.createDirectory( repoPath );
+         InputStream xmlStream = RepositoryFactory.class.getResourceAsStream( "/is/lill/acre/xml/repository.xml" );
+         Files.copy( xmlStream, xmlPath );
+         
+      }
+      catch ( IOException e ) {
+         throw new RepositoryException( "Failed to create repository: " + e );
+      }
+   }
+
 }

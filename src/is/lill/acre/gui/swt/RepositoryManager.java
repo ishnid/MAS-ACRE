@@ -21,8 +21,6 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
@@ -57,12 +55,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 public class RepositoryManager {
 
-   // check whether we're running a Mac or not
-   private static boolean isMac = false;
-   static {
-      if ( System.getProperty( "os.name" ).equals( "Mac OS X" ) )
-         isMac = true;
-   }
+
 
    private static String APP_NAME = "ACRE Editor";
 
@@ -97,12 +90,10 @@ public class RepositoryManager {
 
    private TableColumn[] tcols;
 
+   // buttons for mangaging protocols (new/edit/import/delete)
    private Button newProtocolButton;
-
    private Button editProtocolButton;
-
    private Button importProtocolButton;
-
    private Button deleteProtocolButton;
 
    private Label info;
@@ -110,8 +101,10 @@ public class RepositoryManager {
    private MenuItem remoteItem;
 
    private MenuItem recentItem;
-   
+
    private Menu recentMenu;
+   
+   private RecentManager recents = new RecentManager();
 
    java.util.List<Protocol> visibleProtocols = new ArrayList<Protocol>();
 
@@ -122,8 +115,6 @@ public class RepositoryManager {
 
    // TODO: document this
    private boolean failed;
-
-   private java.util.List<String> recent = new ArrayList<String>();
 
    static {
       logger.setLevel( Level.OFF );
@@ -498,7 +489,6 @@ public class RepositoryManager {
    }
 
    public RepositoryManager( Display display ) {
-      this.loadRecent();
       this.createShell( display );
       this.shell.open();
       this.shell.setSize( 1024, 600 );
@@ -612,7 +602,8 @@ public class RepositoryManager {
 
       try {// TODO: this is somewhat of a hack!
          this.rep = (IProtocolManager) RepositoryFactory.openRepository( root.toString() );
-         this.addRecent( root.toString() );
+         this.recents.repositoryAccessed( root.toString() );
+         this.makeRecentMenu();
          this.failed = false;
          this.refresh();
       }
@@ -624,62 +615,10 @@ public class RepositoryManager {
    private void openRepository( URL root ) {
       logger.info( "Opening repository: " + root );
       this.rep = new HTTPRepository( root );
-      this.addRecent( root.toString() );
+      this.recents.repositoryAccessed( root.toString() );
+      this.makeRecentMenu();
       this.failed = false;
       this.refresh();
-   }
-
-   private void addRecent( String root ) {
-      this.recent.add( root );
-
-      // keep track of 5 recently opened repositories maximum
-      if ( recent.size() > 5 ) {
-         this.recent.remove( 0 );
-      }
-      File recentFile = getRecentFile();
-      try {
-         if ( !recentFile.exists() ) {
-            recentFile.getParentFile().mkdir();
-         }
-         PrintWriter out = new PrintWriter( new FileWriter( recentFile ) );
-         for ( String r : this.recent ) {
-            out.println( r );
-         }
-         out.close();
-      }
-      catch ( IOException e ) {
-         logger.info( "Recent File not found and couldn't be created" );
-      }
-
-      makeRecentMenu();
-   }
-
-   private void loadRecent() {
-      File recentFile = getRecentFile();
-      try {
-         if ( recentFile.exists() ) {
-            BufferedReader in = new BufferedReader( new FileReader( recentFile ) );
-            String line;
-            while ( ( line = in.readLine() ) != null ) {
-               this.recent.add( line );
-            }
-         }
-      }
-      catch ( FileNotFoundException e ) {
-         e.printStackTrace();
-      }
-      catch ( IOException e ) {
-         e.printStackTrace();
-      }
-   }
-
-   private File getRecentFile() {
-      if ( isMac ) {
-         return new File( System.getProperty( "user.home" ), "Library/ACRE Editor/recent.txt" );
-      }
-      else {
-         return new File( System.getProperty( "user.home" ), ".acre/recent.txt" );
-      }
    }
 
    public void createMenu() {
@@ -743,25 +682,25 @@ public class RepositoryManager {
       }
 
       attachListener( menu );
-      
+
       // add the menu to the window
       shell.setMenuBar( menu );
 
    }
-   
+
    // recursively attach a listener to all menu items
    private void attachListener( Menu menu ) {
       MenuListener ml = new MenuListener( this );
       attachListener( menu, ml );
    }
-   
+
    private void attachListener( Menu menu, MenuListener ml ) {
       MenuItem[] items = menu.getItems();
       for ( MenuItem item : items ) {
          attachListener( item, ml );
       }
    }
-   
+
    private void attachListener( MenuItem item, MenuListener ml ) {
       item.addSelectionListener( ml );
       if ( item.getMenu() != null ) {
@@ -773,7 +712,7 @@ public class RepositoryManager {
       recentMenu = new Menu( shell, SWT.DROP_DOWN );
       recentItem.setMenu( recentMenu );
 
-      for ( String s : this.recent ) {
+      for ( String s : this.recents.getRecentRepositories() ) {
          MenuItem mi = new MenuItem( recentMenu, SWT.NONE );
          mi.setText( s );
       }
@@ -825,9 +764,9 @@ public class RepositoryManager {
        * @see org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse.swt.events.SelectionEvent)
        */
       public void widgetSelected( SelectionEvent event ) {
-         
+
          Object source = event.getSource();
-         
+
          if ( source == newItem ) {
 
             DirectoryDialog dd = new DirectoryDialog( rm.shell, SWT.OPEN );
@@ -843,14 +782,14 @@ public class RepositoryManager {
                File basedir = new File( filename );
 
                if ( basedir.list().length != 0 ) {
-                  rm.errorBox( "Directory not empty", "A new ACRE repository should only be created in an empty directory." );
+                  rm.errorBox( "Directory not empty", "A new ACRE repository can only be created in an empty directory." );
                }
                else {
                   try {
-                  rm.rep = (IProtocolManager) RepositoryFactory.openRepository( basedir.toString() );
-                  rm.failed = false;
-                  rm.lastdir = basedir.toString();
-                  rm.refresh();
+                     rm.rep = (IProtocolManager) RepositoryFactory.createRepository( basedir.toString() );
+                     rm.failed = false;
+                     rm.lastdir = basedir.toString();
+                     rm.refresh();
                   }
                   catch ( RepositoryException e ) {
                      failedRepository( e.getMessage() );
@@ -890,13 +829,13 @@ public class RepositoryManager {
                openRepository( remote );
             }
          }
-         
+
          else if ( source == exportItem ) {
-            RepositoryExporter.export( rm.rep  );
+            RepositoryExporter.export( rm.rep );
          }
 
-         else if ( source instanceof MenuItem && ((MenuItem) source).getParent() == recentMenu ) {
-            String toOpen = ((MenuItem) source).getText();
+         else if ( source instanceof MenuItem && ( (MenuItem) source ).getParent() == recentMenu ) {
+            String toOpen = ( (MenuItem) source ).getText();
             if ( toOpen.startsWith( "http://" ) ) {
                try {
                   openRepository( new URL( toOpen ) );

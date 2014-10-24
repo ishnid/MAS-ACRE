@@ -833,31 +833,31 @@ public class ProtocolEditor {
             // New protocol
             newItem = new MenuItem( protocolMenu, SWT.NONE );
             newItem.setText( "&New\tCtrl+N" );
-            newItem.setAccelerator( SWT.CTRL + 'N' );
+            newItem.setAccelerator( SWT.MOD1 + 'N' );
             newItem.addSelectionListener( ml );
 
             // Open existing protocol
             openItem = new MenuItem( protocolMenu, SWT.NONE );
             openItem.setText( "&Open\tCtrl+O" );
-            openItem.setAccelerator( SWT.CTRL + 'O' );
+            openItem.setAccelerator( SWT.MOD1 + 'O' );
             openItem.addSelectionListener( ml );
 
             // Save open protocol
             saveItem = new MenuItem( protocolMenu, SWT.NONE );
             saveItem.setText( "&Save\tCtrl+S" );
-            saveItem.setAccelerator( SWT.CTRL + 'S' );
+            saveItem.setAccelerator( SWT.MOD1 + 'S' );
             saveItem.addSelectionListener( ml );
 
             // Save as a different file
             asItem = new MenuItem( protocolMenu, SWT.NONE );
             asItem.setText( "Save &As\tShift+Ctrl+S" );
-            asItem.setAccelerator( SWT.SHIFT + SWT.CTRL + 'S' );
+            asItem.setAccelerator( SWT.SHIFT + SWT.MOD1 + 'S' );
             asItem.addSelectionListener( ml );
 
             // Quit the editor
             quitItem = new MenuItem( protocolMenu, SWT.NONE );
             quitItem.setText( "&Quit\tCtrl+Q" );
-            quitItem.setAccelerator( SWT.CTRL + 'Q' );
+            quitItem.setAccelerator( SWT.MOD1 + 'Q' );
             quitItem.addSelectionListener( ml );
 
         }
@@ -867,13 +867,13 @@ public class ProtocolEditor {
             // Save open protocol
             saveItem = new MenuItem( protocolMenu, SWT.NONE );
             saveItem.setText( "&Save\tCtrl+S" );
-            saveItem.setAccelerator( SWT.CTRL + 'S' );
+            saveItem.setAccelerator( SWT.MOD1 + 'S' );
             saveItem.addSelectionListener( ml );
 
             // Save as a different file
             asItem = new MenuItem( protocolMenu, SWT.NONE );
             asItem.setText( "Save &As New\tShift+Ctrl+S" );
-            asItem.setAccelerator( SWT.SHIFT + SWT.CTRL + 'S' );
+            asItem.setAccelerator( SWT.SHIFT + SWT.MOD1 + 'S' );
             asItem.addSelectionListener( ml );
 
             // Line before the close option
@@ -881,7 +881,7 @@ public class ProtocolEditor {
 
             closeItem = new MenuItem( protocolMenu, SWT.NONE );
             closeItem.setText( "&Close\tCtrl+W" );
-            closeItem.setAccelerator( SWT.CTRL + 'W' );
+            closeItem.setAccelerator( SWT.MOD1 + 'W' );
             closeItem.addSelectionListener( ml );
 
         }
