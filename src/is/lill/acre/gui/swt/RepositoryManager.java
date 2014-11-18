@@ -10,14 +10,10 @@ import is.lill.acre.protocol.RepositoryExporter;
 import is.lill.acre.protocol.RepositoryFactory;
 import is.lill.acre.xml.XMLProtocolSerialiser;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -56,11 +52,14 @@ import org.eclipse.swt.widgets.TableItem;
 public class RepositoryManager {
 
 
-
    private static String APP_NAME = "ACRE Editor";
 
    private static Logger logger = Logger.getLogger( RepositoryManager.class.getName() );
 
+   static {
+      logger.setLevel( Level.OFF );
+   }
+   
    RepositoryManager rm;
 
    private IProtocolManager rep = null;
@@ -116,9 +115,7 @@ public class RepositoryManager {
    // TODO: document this
    private boolean failed;
 
-   static {
-      logger.setLevel( Level.OFF );
-   }
+
 
    public static void main( String[] args ) {
 
@@ -831,6 +828,7 @@ public class RepositoryManager {
          }
 
          else if ( source == exportItem ) {
+            logger.info( "Export menu item clicked" );
             RepositoryExporter.export( rm.rep );
          }
 

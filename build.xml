@@ -17,8 +17,9 @@
 	<property name="outfile" value="MAS-ACRE-${TODAY}" />
 	<property name="jar-dest" value="build/jar" />
 	<property name="app-dest" value="build/app" />
+    <property name="latest-dest" value="build/latest" />
 	<property name="swt-version" value="4.4" />
-	<property name="app-name" value="ACRE Editor" />
+	<property name="app-name" value="ACRE-Editor" />
 
 
 	<!-- delete the build directory -->
@@ -69,15 +70,20 @@
 		<mkdir dir="${app-dest}" />
 
 		<!-- First make the .app folder -->
-		<bundleapp outputdirectory="${app-dest}" name="ACRE Editor" displayname="ACRE Editor" identifier="is.lill.acre.editor" mainclassname="org.swtjar.SWTLoader" icon="./src/acre-icon.icns">
+		<bundleapp outputdirectory="${app-dest}" name="ACRE-Editor" displayname="ACRE Editor" identifier="is.lill.acre.editor" mainclassname="org.swtjar.SWTLoader" icon="./src/acre-icon.icns">
 			<classpath file="${jar-dest}/${outfile}.jar" />
 			<option value="-XstartOnFirstThread" />
 		</bundleapp>
 
 		<!-- Now create a ZIP archive for distribution -->
-		<zip destfile="${app-dest}/${outfile}.zip">
+		<zip destfile="${app-dest}/${app-name}.zip">
 			<zipfileset dir="${app-dest}/${app-name}.app" prefix="${app-name}.app" filemode="755" />
 		</zip>
 	</target>
+    
+    <target name="latest" depends="osx">
+       <copy file="${app-dest}/${app-name}.zip" tofile="${latest-dest}/${app-name}-latest.zip" />
+       <copy file="${jar-dest}/${outfile}.jar" tofile="${latest-dest}/MAS-ACRE-latest.jar" />
+    </target>
 
 </project>

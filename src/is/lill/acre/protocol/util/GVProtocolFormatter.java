@@ -45,7 +45,9 @@ public class GVProtocolFormatter {
       StringBuilder output = new StringBuilder();
 
       output.append( "digraph finite_state_machine {\n" );
-      output.append( "   size=\"" + width + "," + height + "\"\n" );
+      if ( width > 0 && height > 0 ) {
+         output.append( "   size=\"" + width + "," + height + "\"\n" );
+      }
 
       // create a node for each state
       for ( State s : p.getStates() ) {
