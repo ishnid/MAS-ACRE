@@ -65,6 +65,7 @@ public class RepositoryManager {
    private IProtocolManager rep = null;
 
    Shell shell;
+   
    private String VERSION = "1.1";
 
    private MenuItem newItem;
@@ -89,7 +90,7 @@ public class RepositoryManager {
 
    private TableColumn[] tcols;
 
-   // buttons for mangaging protocols (new/edit/import/delete)
+   // buttons for managing protocols (new/edit/import/delete)
    private Button newProtocolButton;
    private Button editProtocolButton;
    private Button importProtocolButton;
@@ -469,16 +470,6 @@ public class RepositoryManager {
       };
    }
 
-   public RepositoryManager( Display display, URL root ) {
-      this( display );
-      try {
-         this.openRepository( new URL( "http://acre.lill.is" ) );
-
-      }
-      catch ( MalformedURLException e ) {
-         e.printStackTrace();
-      }
-   }
 
    public RepositoryManager( Display display, File root ) {
       this( display );
