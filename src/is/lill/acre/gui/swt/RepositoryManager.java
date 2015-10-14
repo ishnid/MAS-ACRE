@@ -66,7 +66,7 @@ public class RepositoryManager {
 
    Shell shell;
    
-   private String VERSION = "1.1";
+   private String VERSION = "1.11";
 
    private MenuItem newItem;
 

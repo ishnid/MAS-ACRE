@@ -56,7 +56,7 @@ public class ProtocolEditor extends JFrame {
       logger.setLevel( Level.ALL );
    }
 
-   private static String VERSION = "0.1";
+   private static String VERSION = "1.11";
 
    public static final int FROM_STATE = 0;
    public static final int TO_STATE = 1;
@@ -69,11 +69,11 @@ public class ProtocolEditor extends JFrame {
 
    private Protocol protocol = new Protocol();
 
-   protected DefaultListModel stateListModel = new DefaultListModel();
-   protected DefaultListModel participantListModel = new DefaultListModel();
+   protected DefaultListModel<String> stateListModel = new DefaultListModel<String>();
+   protected DefaultListModel<String> participantListModel = new DefaultListModel<String>();
 
-   protected JList stateList = new JList( stateListModel );
-   private JList participantList = new JList( participantListModel );
+   protected JList<String> stateList = new JList<String>( stateListModel );
+   private JList<String> participantList = new JList<String>( participantListModel );
 
    private ITermFormatter formatter = Utilities.getTermFormatter( "acre" );
    private List<Transition> transitions = new ArrayList<Transition>();
@@ -189,7 +189,7 @@ public class ProtocolEditor extends JFrame {
 
          @Override
          public void actionPerformed( ActionEvent arg0 ) {
-            Vector<Object> participants = new Vector<Object>();
+            Vector<String> participants = new Vector<String>();
 
             for ( int i = 0; i < participantListModel.getSize(); i++ ) {
                participants.add( participantListModel.elementAt( i ) );
@@ -477,15 +477,15 @@ public class ProtocolEditor extends JFrame {
 @SuppressWarnings ( "serial")
 class TransitionFrame extends JFrame {
 
-   private JComboBox fromStateBox;
-   private JComboBox toStateBox;
-   private JComboBox senderBox;
-   private JComboBox receiverBox;
-   private JComboBox performativeBox;
+   private JComboBox<String> fromStateBox;
+   private JComboBox<String> toStateBox;
+   private JComboBox<String> senderBox;
+   private JComboBox<String> receiverBox;
+   private JComboBox<String> performativeBox;
    private JTextField contentField;
 
    private ITermParser parser = Utilities.getTermParser( "acre" );
-   public TransitionFrame( final Protocol p, Vector<Object> participants, final Transition t ) {
+   public TransitionFrame( final Protocol p, Vector<String> participants, final Transition t ) {
 
       setSize( 400, 400 );
 
@@ -498,20 +498,20 @@ class TransitionFrame extends JFrame {
       }
 
       add( new JLabel( "From State:" ) );
-      fromStateBox = new JComboBox( states );
+      fromStateBox = new JComboBox<String>( states );
       add( fromStateBox );
 
       add( new JLabel( "To State:" ) );
-      toStateBox = new JComboBox( states );
+      toStateBox = new JComboBox<String>( states );
       add( toStateBox );
 
       add( new JLabel( "Sender:" ) );
 
-      senderBox = new JComboBox( participants );
+      senderBox = new JComboBox<String>( participants );
       add( senderBox );
       add( new JLabel( "Receiver:" ) );
 
-      receiverBox = new JComboBox( participants );
+      receiverBox = new JComboBox<String>( participants );
       add( receiverBox );
 
       // list of performatives
@@ -528,7 +528,7 @@ class TransitionFrame extends JFrame {
 
       add( new JLabel( "Performative:" ) );
 
-      performativeBox = new JComboBox( performatives );
+      performativeBox = new JComboBox<String>( performatives );
       add( performativeBox );
 
       // define the content
