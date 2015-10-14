@@ -144,9 +144,4 @@ public class HTTPRepository extends AbstractRepository implements IRepository {
             throw new RepositoryException( "Failed to parse repository XML file for " + base.toString() );
         }
     }
-
-    @Override
-    public IProtocolSource getSourceFor( ProtocolDescriptor desc ) {
-        return this.sources.get( desc );
-    }
 }

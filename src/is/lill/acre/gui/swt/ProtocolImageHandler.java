@@ -44,10 +44,22 @@ public class ProtocolImageHandler {
 
       // run dot, piping the stdout
       Runtime rt = Runtime.getRuntime();
-      Process dotProcess = rt.exec( "dot " + tempFile.getAbsolutePath() + " -Tpng" );
+      String cmd = "dot";
+
+      boolean isMac = System.getProperty( "os.name" ).equals( "Mac OS X" );
+      
+      if ( isMac ) {
+         // this is a NASTY hack for OSX in case dot is installed in /usr/local/bin
+         // ... which is the default homebrew location
+         File f = new File( "/usr/local/bin/dot" );
+         if ( f.exists() ) {
+            cmd = f.toString();
+         }
+      }
+      Process dotProcess = rt.exec( cmd + " " + tempFile.getAbsolutePath() + " -Tpng" );
       return dotProcess.getInputStream();
    }
-   
+
    public InputStream generateGraph( Protocol toGraph, int width, int height, float multiplier ) throws IOException {
 
       // we haven't yet figured out the dpi
@@ -55,12 +67,9 @@ public class ProtocolImageHandler {
          try {
             this.img = new Image( device, generateGraph( toGraph, 1, 1 ) );
 
-            dpi =
-                  Math.max( img.getImageData().width, img.getImageData().height );
+            dpi = Math.max( img.getImageData().width, img.getImageData().height );
 
-            logger.info( "DPI calculation uses width of "
-                  + img.getImageData().width + " and height of "
-                  + img.getImageData().height );
+            logger.info( "DPI calculation uses width of " + img.getImageData().width + " and height of " + img.getImageData().height );
 
             logger.info( "DPI Calculated as " + dpi );
          }
@@ -69,11 +78,9 @@ public class ProtocolImageHandler {
          }
       }
 
-      logger.info( "Generating FSM for protocol: " + toGraph.toString()
-            + " with DPI of " + dpi );
+      logger.info( "Generating FSM for protocol: " + toGraph.toString() + " with DPI of " + dpi );
 
-      return generateGraph( toGraph, (float) width * multiplier / dpi, (float) height
-            * multiplier / dpi );
+      return generateGraph( toGraph, (float) width * multiplier / dpi, (float) height * multiplier / dpi );
 
    }
 
