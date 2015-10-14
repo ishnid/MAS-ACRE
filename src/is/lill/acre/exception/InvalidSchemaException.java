@@ -1,6 +1,8 @@
 package is.lill.acre.exception;
 
-public class InvalidSchemaException extends ProtocolParseException {
+import java.io.IOException;
+
+public class InvalidSchemaException extends IOException {
 
    /**
      * 

@@ -100,9 +100,6 @@ public class ProtocolEditor extends JFrame {
 
       ProtocolEditor pe = new ProtocolEditor();
 
-      //args =
-       //     new String[] { "/home/daithi/.acre/is.lill.acre.test_pingpong_0.1.acr" };
-
       if ( args.length == 1 ) {
          logger.info( "Loading protocol from file: " + args[ 0 ] );
          pe.loadProtocol( new File( args[ 0 ] ) );

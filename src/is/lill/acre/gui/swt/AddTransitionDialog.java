@@ -57,7 +57,7 @@ public class AddTransitionDialog extends Dialog {
 
         shell.setLayout( new GridLayout( 2, true ) );
 
-        GridData gridData = new GridData( SWT.FILL, SWT.FILL, true, false );
+        GridData gridData = new GridData( SWT.FILL, SWT.FILL, true, true );
 
         Label label = new Label( shell, SWT.NONE );
         label.setText( "From State:" );
@@ -108,6 +108,7 @@ public class AddTransitionDialog extends Dialog {
         Button buttonCancel = new Button( shell, SWT.PUSH );
         buttonCancel.setText( "Cancel" );
         buttonCancel.setLayoutData( gridData );
+        
         buttonOK.addListener( SWT.Selection, new Listener() {
             public void handleEvent( Event event ) {
 

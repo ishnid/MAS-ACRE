@@ -23,11 +23,67 @@ import java.util.logging.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/**
+ * Writes the repository.xml file
+ * 
+ * @author daithi
+ */
 public class XMLRepositoryWriter {
 
    private static Logger logger = Logger.getLogger( XMLRepositoryWriter.class.getName() );
    static {
       logger.setLevel( Level.WARNING );
+   }
+
+   public static void writeEmptyRepository( OutputStream out ) throws IOException {
+      try {
+         logger.info( "Creating XML document" );
+         DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
+         DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
+         Document doc = docBuilder.newDocument();
+         doc.setXmlStandalone( true );
+
+         Element rep = doc.createElement( "repository" );
+
+         rep.setAttribute( "xmlns", "http://acre.lill.is" );
+         rep.setAttribute( "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance" );
+         rep.setAttribute( "xsi:schemaLocation", "http://acre.lill.is http://acre.lill.is/repository.xsd" );
+         doc.appendChild( rep );
+
+         /*
+          * Optional element Element base = doc.createElement( "base" );
+          * 
+          * base.setTextContent( r.getBase() ); rep.appendChild( base );
+          */
+
+         // set up a transformer
+         TransformerFactory transfac = TransformerFactory.newInstance();
+         transfac.setAttribute( "indent-number", 3 );
+
+         Transformer trans = transfac.newTransformer();
+         trans.setOutputProperty( OutputKeys.OMIT_XML_DECLARATION, "no" );
+         trans.setOutputProperty( OutputKeys.INDENT, "yes" );
+
+         // create string from xml tree
+         StringWriter sw = new StringWriter();
+         StreamResult result = new StreamResult( sw );
+         DOMSource source = new DOMSource( doc );
+         trans.transform( source, result );
+
+         out.write( sw.toString().getBytes() );
+      }
+      catch ( ParserConfigurationException e ) {
+         logger.severe( "Exception when writing repository description to XML:" + e );
+         e.printStackTrace();
+      }
+      catch ( TransformerConfigurationException e ) {
+         logger.severe( "Exception when writing repository description to XML:" + e );
+         e.printStackTrace();
+      }
+      catch ( TransformerException e ) {
+         logger.severe( "Exception when writing repository description to XML:" + e );
+         e.printStackTrace();
+      }
    }
 
    public static void writeRepository( IEditableRepository r, OutputStream out ) throws IOException {
