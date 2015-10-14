@@ -771,6 +771,7 @@ public class ProtocolEditor {
          }
          else if ( noDot ){
             it.text( "Install graphviz to see protocol images" );
+            logger.warning( "Graphviz not found" );
             protocolImg.redraw();
          }
          else {
@@ -781,11 +782,12 @@ public class ProtocolEditor {
       }
       catch ( IOException e ) {
          logger.warning( e.toString() );
+         
+         // tried to run dot but failed: log environment
          Map<String, String> env = System.getenv();
          for (String envName : env.keySet()) {
-              System.out.format("%s=%s%n", envName, env.get(envName));
+              logger.warning( String.format("%s=%s%n", envName, env.get(envName)) );
          }
-
          it.text( "Install graphviz to ensure images are generated" );
          protocolImg.redraw();
          setNoDot( true );
