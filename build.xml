@@ -17,7 +17,7 @@
 	<property name="outfile" value="MAS-ACRE-${TODAY}" />
 	<property name="jar-dest" value="build/jar" />
 	<property name="app-dest" value="build/app" />
-    <property name="latest-dest" value="build/latest" />
+    <property name="latest-dest" value="dist/" />
 	<property name="swt-version" value="4.4" />
 	<property name="app-name" value="ACRE-Editor" />
 
@@ -36,7 +36,7 @@
 	<!-- compile the sources -->
 	<target name="compile">
 		<mkdir dir="${class-dest}" />
-		<javac srcdir="src" destdir="${class-dest}" includeantruntime="false" debug="on" target="1.7" source="1.7">
+		<javac srcdir="src" destdir="${class-dest}" includeantruntime="false" debug="on" release="8">
 			<classpath>
 				<fileset dir="lib">
 					<include name="**/*.jar" />
@@ -81,7 +81,7 @@
 		</zip>
 	</target>
     
-    <target name="latest" depends="osx">
+    <target name="dist" depends="osx">
        <copy file="${app-dest}/${app-name}.zip" tofile="${latest-dest}/${app-name}-latest.zip" />
        <copy file="${jar-dest}/${outfile}.jar" tofile="${latest-dest}/MAS-ACRE-latest.jar" />
     </target>
